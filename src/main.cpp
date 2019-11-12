@@ -145,6 +145,8 @@ int main(int argc, char ** argv) {
             
         }
         
+        bool save_bool = saveflag;
+        
         if (showflag) {    
             
             cv::namedWindow("final_image", 0);
@@ -152,37 +154,10 @@ int main(int argc, char ** argv) {
             char key_pressed = cv::waitKey(0);
             
             if (key_pressed == 'q' || key_pressed == 'k') {
+                save_bool = false;
                 break;
             } else if (key_pressed == 's' && saveflag) {
-                
-                std::string output_folder = "output_" + time_stamp("%y%m%d_%H%M%S") + "/";
-                create_dir(output_folder);
-
-                int kmax = tails_image.size();
-                int cf = std::to_string(kmax).size();
-                
-                for (int k = 0; k < kmax; ++k) {
-                    cv::Rect border_rect = tails_image[k].getBorderRect();
-                    cv::Mat tmp_image = final_image(border_rect);
-                    //
-                    std::string strnum = std::to_string(k);
-                    while (strnum.size() < cf ) {
-                        strnum = "0" + strnum;
-                    }
-                    cv::imwrite(output_folder + "image_" + strnum + ".jpg", tmp_image);
-                    
-                }
-                
-                cv::Mat temp_image_final;
-                preproc.setSize(cv::Size(width_tails, height_tails));
-                preproc.setNormROI(cv::Rect2f(0, 0, 1, 1));
-                preproc.setFitFlag(false);
-                preproc.setDebug(false);
-                preproc.preprocessingFrame(final_image, temp_image_final);
-                cv::imwrite(output_folder + "final_image.jpg", temp_image_final);
-                
-                break;
-                
+                save_bool = true;
             }
             
             cv::destroyAllWindows();
@@ -190,8 +165,36 @@ int main(int argc, char ** argv) {
         } else {
             break;
         }
-                    
+        
+        if (save_bool) {
+            std::string output_folder = "output_" + time_stamp("%y%m%d_%H%M%S") + "/";
+            create_dir(output_folder);
 
+            int kmax = tails_image.size();
+            int cf = std::to_string(kmax).size();
+            
+            for (int k = 0; k < kmax; ++k) {
+                cv::Rect border_rect = tails_image[k].getBorderRect();
+                cv::Mat tmp_image = final_image(border_rect);
+                //
+                std::string strnum = std::to_string(k);
+                while (strnum.size() < cf ) {
+                    strnum = "0" + strnum;
+                }
+                cv::imwrite(output_folder + "image_" + strnum + ".jpg", tmp_image);
+                
+            }
+            
+            cv::Mat temp_image_final;
+            preproc.setSize(cv::Size(width_tails, height_tails));
+            preproc.setNormROI(cv::Rect2f(0, 0, 1, 1));
+            preproc.setFitFlag(false);
+            preproc.setDebug(false);
+            preproc.preprocessingFrame(final_image, temp_image_final);
+            cv::imwrite(output_folder + "final_image.jpg", temp_image_final);
+
+            break;
+        }
 
     }
     
