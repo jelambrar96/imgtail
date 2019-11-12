@@ -10,3 +10,8 @@ bin
 bin/
 bin/*
 
+*.xml
+
+output*
+
+

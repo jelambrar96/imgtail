@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <opencv_storage>
     <type_process>0</type_process>
-    <showflag>0</showflag>
-    <saveflag>0</saveflag>
+    <showflag>1</showflag>
+    <saveflag>1</saveflag>
     <htails>7</htails>
     <vtails>7</vtails>
     <width_tails>168</width_tails>
@@ -13,6 +13,7 @@
     <margincolor>128</margincolor>
     <margin_ext>0</margin_ext>
     <margin_ext_color>255</margin_ext_color>
+    <window_limits>0.00 0.00 1.00 1.00</window_limits>
     <image>"media/image.jpg"</image>
     
 </opencv_storage>
