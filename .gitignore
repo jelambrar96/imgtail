@@ -1,0 +1,12 @@
+# .gitignore
+
+imgtails
+
+media
+media/
+media/*
+
+bin
+bin/
+bin/*
+
