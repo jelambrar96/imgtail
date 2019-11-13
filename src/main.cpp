@@ -159,8 +159,25 @@ int main(int argc, char ** argv) {
 
         if (showflag) {
 
+            cv::Mat display_image;
+            const cv::Size max_image_size = cv::Size(1280, 960);
+
+            if (final_image.rows > max_image_size.height) {
+                cv::Size display_size = cv::Size(max_image_size.height * final_image.cols / final_image.rows,
+                    max_image_size.height);
+                cv::resize(final_image, display_image, display_size);
+                
+            } else if (final_image.cols > max_image_size.width) {
+                cv::Size display_size = cv::Size(max_image_size.width,
+                    max_image_size.width * final_image.rows / final_image.cols);
+                cv::resize(final_image, display_image, display_size);
+
+            } else {
+                display_image = final_image;
+            }
+
             cv::namedWindow("final_image", 0);
-            cv::imshow("final_image", final_image);
+            cv::imshow("final_image", display_image);
 
             char key_pressed = cv::waitKey(0);
             bool temp_save = false;
