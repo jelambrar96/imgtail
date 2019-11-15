@@ -96,7 +96,7 @@ void Preproc::preprocessingFrame(cv::Mat & in, cv::Mat &out) {
 			std::cout << "resize of image " << std::endl;
 		}
 		// std::cout << "resize of image " << std::endl;
-		cv::resize(temp_out, temp_out, getSize());
+		cv::resize(temp_out, temp_out, getSize(), getTypeResize());
 		// cloned = true;
 		if (debug) {
 			std::cout << "temp_out.size(): " << temp_out.size()  << std::endl;

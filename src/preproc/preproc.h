@@ -43,6 +43,9 @@ public:
 	void setDebug(bool _flag) { _debug = _flag; }
 	bool getDebug() { return _debug; }
 
+	void setTypeResize(int i) { _type_resize = i; }
+	int getTypeResize() { return _type_resize; }
+
 private:
 
 	void setROI( cv::Rect _r);
@@ -57,6 +60,7 @@ private:
 	bool _debug = false;
 	
 	bool _fit_flag = false;
+	int _type_resize = 0;
 };
 
 class Preproc3D: public Preproc{

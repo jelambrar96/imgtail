@@ -115,6 +115,7 @@ int main(int argc, char ** argv) {
         preproc.setNormROI(rect_norm_roi);
         preproc.setFitFlag(true);
         preproc.setChannels(3);
+	preproc.setTypeResize(CV_INTER_CUBIC);
 
         cv::Mat template_image = cv::imread(image_filename);
         preproc.preprocessingFrame(template_image, template_image);
