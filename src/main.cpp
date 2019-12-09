@@ -184,7 +184,7 @@ int main(int argc, char ** argv) {
             bool temp_save = false;
 
             // exit
-            if (key_pressed == 'q') {
+            if (key_pressed == 'q' || key_pressed == 27) {
                 save_bool = false;
                 break;
             }
