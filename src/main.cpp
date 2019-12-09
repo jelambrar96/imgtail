@@ -115,7 +115,7 @@ int main(int argc, char ** argv) {
         preproc.setNormROI(rect_norm_roi);
         preproc.setFitFlag(true);
         preproc.setChannels(3);
-	preproc.setTypeResize(CV_INTER_CUBIC);
+        preproc.setTypeResize(CV_INTER_CUBIC);
 
         cv::Mat template_image = cv::imread(image_filename);
         preproc.preprocessingFrame(template_image, template_image);
@@ -241,9 +241,10 @@ int main(int argc, char ** argv) {
 
             cv::Mat temp_image_final;
             preproc.setSize(cv::Size(width_tails, height_tails));
-            preproc.setNormROI(rect_norm_roi);
+            preproc.setNormROI(cv::Rect2f(0, 0, 1, 1));
             preproc.setFitFlag(false);
             preproc.setDebug(false);
+            preproc.setChannels(3);
             preproc.preprocessingFrame(final_image, temp_image_final);
             cv::imwrite(output_folder + "final_image.jpg", temp_image_final);
 
