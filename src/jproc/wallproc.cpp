@@ -22,9 +22,9 @@ void WallProc::generateTails() {
     setMainSize(cv::Size(main_width, main_height));
     
     std::vector <Tail> temp_tails;
-    for ( int i = 0; i < num_tails.height; ++i) {
+    for ( int i = 0; i < num_tails.width; ++i) {
         
-        for (int j = 0; j < num_tails.width; ++j) {
+        for (int j = 0; j < num_tails.height; ++j) {
             
             int hoffset = (j % 2 == 0) ? 0 : size_tails.width / 2;
             

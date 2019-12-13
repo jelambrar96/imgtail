@@ -22,8 +22,8 @@ void GridProc::generateTails() {
     setMainSize(cv::Size(main_width, main_height));
     
     std::vector <Tail> temp_tails;
-    for ( int i = 0; i < num_tails.height; ++i) {
-        for (int j = 0; j < num_tails.width; ++j) {
+    for ( int i = 0; i < num_tails.width; ++i) {
+        for (int j = 0; j < num_tails.height; ++j) {
             
             cv::Rect temp_rect = cv::Rect(i * (size_tails.width + margin), j * (size_tails.height + margin),
                 size_tails.width, size_tails.height);

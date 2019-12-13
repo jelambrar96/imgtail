@@ -40,90 +40,111 @@ int main(int argc, char ** argv) {
     }
 
     cv::Point2f point_offset = cv::Point2f(0, 0);
-    const float step_offset = 0.01;
+    float step_offset = 0.01;
+    cv::Rect2f rect_norm_roi;
+    cv::Mat template_image;
+    cv::Size final_size;
 
     int showflag = false;
 
     // preproc object
     Preproc preproc;
 
+    int type_process = 0; // GRID
+    int saveflag = false;
+    std::string image_filename = "";
+    int htails = 0;
+    int vtails = 0;
+    int width_tails = 0;
+    int height_tails = 0;
+    int padding = 0;
+    int paddingcolor = 255;
+    int margincolor = 0;
+    int margin = 0;
+    int margin_ext = 0;
+    int margin_ext_color = 255;
+    float input_step = 0;
+
+    std::vector<float> windows_limits = {};
+
+    cv::FileStorage fs(confname, 0);
+    fs["image"] >> image_filename;
+    fs["showflag"] >> showflag;
+    fs["saveflag"] >> saveflag;
+    fs["type_process"] >> type_process;
+    fs["htails"] >> htails;
+    fs["vtails"] >> vtails;
+    fs["width_tails"] >> width_tails;
+    fs["height_tails"] >> height_tails;
+    fs["padding"] >> padding;
+    fs["margin"] >> margin;
+    fs["window_limits"] >> windows_limits;
+    fs["paddingcolor"] >> paddingcolor;
+    fs["margincolor"] >> margincolor;
+    fs["margin_ext_color"] >> margin_ext_color;
+    fs["margin_ext"] >> margin_ext;
+    fs["step"] >> input_step;
+    fs.release();
+
+    if (!isFileExist(image_filename)) {
+        std::cerr << "ERROR: image file does not exist.\n";
+        fs.release();
+        return -1;
+    }
+
+    cv::Mat input_image = cv::imread(image_filename);
+    
+    rect_norm_roi = cv::Rect2f(cv::Point2f(windows_limits[0], windows_limits[1]),
+        cv::Point2f(windows_limits[2], windows_limits[3]));
+
+    BasicProc *process = FactoryProcess::getProcess(type_process);
+
+    process->setSizeTails(cv::Size(width_tails, height_tails));
+    process->setNumTails(cv::Size(htails, vtails));
+    process->setPadding(padding);
+    process->setMargin(margin);
+    process->setExtMargin(margin_ext);
+
+    process->generateTails();
+    cv::Size main_size = process->getMainSize();
+    std::vector<Tail> tails_image = process->getTails();
+    
+    float input_roi_ratio = static_cast<float>(rect_norm_roi.height) / rect_norm_roi.width;
+    float preproc_ratio = static_cast<float>(main_size.height) / main_size.width;
+
+    if (input_roi_ratio > preproc_ratio) {
+        rect_norm_roi.height = preproc_ratio * rect_norm_roi.width;
+    } else if (input_roi_ratio > preproc_ratio) {
+        rect_norm_roi.width = main_size.width * rect_norm_roi.width / rect_norm_roi.height;
+    }
+
+    std::cout << "main_size: " << main_size << std::endl;
+
     while (true) {
 
-        int type_process = 0; // GRID
-        int saveflag = false;
-        std::string image_filename = "";
-        int htails = 0;
-        int vtails = 0;
-        int width_tails = 0;
-        int height_tails = 0;
-        int padding = 0;
-        int paddingcolor = 255;
-        int margincolor = 0;
-        int margin = 0;
-        int margin_ext = 0;
-        int margin_ext_color = 255;
-
-        std::vector<float> windows_limits = {};
-
-        cv::FileStorage fs(confname, 0);
-        fs["image"] >> image_filename;
-        fs["type_process"] >> type_process;
-        fs["showflag"] >> showflag;
-        fs["saveflag"] >> saveflag;
-        fs["htails"] >> htails;
-        fs["vtails"] >> vtails;
-        fs["width_tails"] >> width_tails;
-        fs["height_tails"] >> height_tails;
-        fs["padding"] >> padding;
-        fs["margin"] >> margin;
-        fs["window_limits"] >> windows_limits;
-        fs["paddingcolor"] >> paddingcolor;
-        fs["margincolor"] >> margincolor;
-        fs["margin_ext_color"] >> margin_ext_color;
-        fs["margin_ext"] >> margin_ext;
-        fs.release();
-
-        if (!isFileExist(image_filename)) {
-            std::cerr << "ERROR: image file does not exist.\n";
-            fs.release();
-            return -1;
-        }
+        if (input_step) {
+            step_offset = input_step;
+        }        
 
         // std::cout << "paddingcolor: " << paddingcolor << "\n";
-
         // std::cout << "creating process object.\n";
-        BasicProc *process = FactoryProcess::getProcess(type_process);
+        // std::cout << "rect_norm_roi: " << rect_norm_roi << std::endl;
 
-        process->setSizeTails(cv::Size(width_tails, height_tails));
-        process->setNumTails(cv::Size(htails, vtails));
-        process->setPadding(padding);
-        process->setMargin(margin);
-        process->setExtMargin(margin_ext);
-
-        process->generateTails();
-        cv::Size main_size = process->getMainSize();
-        std::vector<Tail> tails_image = process->getTails();
-
-        cv::Rect2f rect_norm_roi = cv::Rect2f(cv::Point2f(windows_limits[0], windows_limits[1]),
-            cv::Point2f(windows_limits[2], windows_limits[3]));
-
-        rect_norm_roi.x += point_offset.x;
-        rect_norm_roi.y += point_offset.y;
-
-        preproc.setDebug(false);
+        preproc.setDebug(true);
         preproc.setSize(main_size);
         preproc.setNormROI(rect_norm_roi);
         preproc.setFitFlag(true);
         preproc.setChannels(3);
         preproc.setTypeResize(CV_INTER_CUBIC);
 
-        cv::Mat template_image = cv::imread(image_filename);
-        preproc.preprocessingFrame(template_image, template_image);
+        cv::Mat temp_input = input_image.clone();
+        preproc.preprocessingFrame(temp_input, template_image);
 
         // cv::resize(template_image, template_image, main_size);
 
         cv::Mat final_image(template_image.rows, template_image.cols, CV_8UC3,
             cv::Scalar(margincolor, margincolor, margincolor));
+        final_size = final_image.size();
 
         for (Tail item_tail: tails_image) {
 
@@ -133,7 +154,7 @@ int main(int argc, char ** argv) {
             cv::Mat temp_image(item_rect.height, item_rect.width, CV_8UC3,
                 cv::Scalar(paddingcolor, paddingcolor, paddingcolor));
 
-            // cv::Rect temp_rect = cv::Rect(item_rect.x + padding, item_rect.y + padding,
+            //  cv::Rect temp_rect = cv::Rect(item_rect.x + padding, item_rect.y + padding,
             //     item_rect.width - 2 * padding, item_rect.height - 2 * padding); 
             cv::Rect temp_rect = item_tail.getPaddingRect();
 
@@ -192,25 +213,27 @@ int main(int argc, char ** argv) {
                 temp_save = true;
             }
             else if (key_pressed == 'k') {
-                if (point_offset.y > step_offset) {
-                    point_offset.y -= step_offset;
+                if (rect_norm_roi.y > step_offset) {
+                    rect_norm_roi.y -= step_offset;
                 }
             }
             else if (key_pressed == 'h') {
-                if (point_offset.x > step_offset) {
-                    point_offset.x -= step_offset;
+                if (rect_norm_roi.x > step_offset) {
+                    rect_norm_roi.x -= step_offset;
                 }
             }
             else if (key_pressed == 'j') {
                 float limit_v  = rect_norm_roi.y + rect_norm_roi.height + step_offset;
+                std::cout << limit_v << std::endl;
                 if (limit_v < 1) {
-                    point_offset.y += step_offset;
+                    rect_norm_roi.y += step_offset;
                 }
             }
             else if (key_pressed == 'l') {
                 float limit_h  = rect_norm_roi.x + rect_norm_roi.width + step_offset;
+                std::cout << limit_h << std::endl;
                 if (limit_h < 1) {
-                    point_offset.x += step_offset;
+                    rect_norm_roi.x += step_offset;
                 }
             } else {
                 // invalid key;
@@ -256,6 +279,14 @@ int main(int argc, char ** argv) {
     if (showflag) {
         cv::destroyAllWindows();
     }
+
+    std::cout << "output image size: " << final_size << std::endl;
+    std::cout << "final norm roi:" << rect_norm_roi << std::endl;
+    cv::Rect roi_final = cv::Rect(rect_norm_roi.x * template_image.cols,
+                                rect_norm_roi.y * template_image.rows,
+                                rect_norm_roi.width * template_image.rows,
+                                rect_norm_roi.height * template_image.rows);
+    std::cout << "rect: " << roi_final << std::endl;
 
     return 0;
 }
