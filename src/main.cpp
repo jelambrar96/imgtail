@@ -130,7 +130,7 @@ int main(int argc, char ** argv) {
         // std::cout << "creating process object.\n";
         // std::cout << "rect_norm_roi: " << rect_norm_roi << std::endl;
 
-        preproc.setDebug(true);
+        preproc.setDebug(false);
         preproc.setSize(main_size);
         preproc.setNormROI(rect_norm_roi);
         preproc.setFitFlag(true);
@@ -224,14 +224,14 @@ int main(int argc, char ** argv) {
             }
             else if (key_pressed == 'j') {
                 float limit_v  = rect_norm_roi.y + rect_norm_roi.height + step_offset;
-                std::cout << limit_v << std::endl;
+                // std::cout << limit_v << std::endl;
                 if (limit_v < 1) {
                     rect_norm_roi.y += step_offset;
                 }
             }
             else if (key_pressed == 'l') {
                 float limit_h  = rect_norm_roi.x + rect_norm_roi.width + step_offset;
-                std::cout << limit_h << std::endl;
+                // std::cout << limit_h << std::endl;
                 if (limit_h < 1) {
                     rect_norm_roi.x += step_offset;
                 }
